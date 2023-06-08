@@ -97,19 +97,51 @@ def logout_view(request):
 
 class HomeView(LoginRequiredMixin, View):
     def get(self, request):
-        search = request.GET.get('search')
-        if search:
-            query = Q(first_name__icontains=search) | Q(last_name__icontains=search) | Q(email__icontains=search)
-            all_friends = request.user.friends.filter(query)
-        else:
-            all_friends = request.user.friends.all()
-        return render(request, 'chat/home_page.html', {'all_friends': all_friends, 'search': search})
+        pass
+        # search = request.GET.get('search')
+        # if search:
+        #     query = Q(first_name__icontains=search) | Q(last_name__icontains=search) | Q(email__icontains=search)
+        #     all_friends = request.user.friends.filter(query)
+        # else:
+        #     all_friends = request.user.friends.all()
+
+        # af_dict_lst = []
+        # for friend in all_friends:
+        #     friend_dict = vars(friend)
+        #     clean_friend_dict = {
+        #         'id': friend_dict['id'],
+        #         'username': friend_dict['username'],
+        #         'first_name': friend_dict['first_name'],
+        #         'last_name': friend_dict['last_name'],
+        #         'email': friend_dict['email'],
+        #         # 'last_login': friend_dict['last_login']
+        #     }
+        #     af_dict_lst.append(clean_friend_dict)
+        # print(af_dict_lst)
+        # return render(request, 'chat/home_page.html', {'all_friends': all_friends, 'search': search})
     def post(self, request):
         new_friend = get_object_or_404(User, email=request.POST['email'])
         request.user.friends.add(new_friend)
         new_friend.friends.add(request.user)
         return redirect(reverse('home'))
     
+class HomeJSON(LoginRequiredMixin, View):
+    def get(self, request):
+        all_friends = request.user.friends.all()
+        af_dict_lst = []
+        for friend in all_friends:
+            friend_dict = vars(friend)
+            clean_friend_dict = {
+                'id': friend_dict['id'],
+                'username': friend_dict['username'],
+                'first_name': friend_dict['first_name'],
+                'last_name': friend_dict['last_name'],
+                'email': friend_dict['email'],
+                # 'last_login': friend_dict['last_login']
+            }
+            af_dict_lst.append(clean_friend_dict)
+        return JsonResponse(af_dict_lst, safe=False)
+
 class ChatView(LoginRequiredMixin, View):
     def get(self, request, pk):
         try:
@@ -119,16 +151,16 @@ class ChatView(LoginRequiredMixin, View):
         
         chat_history = Chat.objects.filter(sent_by=request.user, received_by=friend).order_by('-sent_at')
         
-        ch_dict_lst = []
-        for chat in chat_history:
-            date_time = clean_dt(chat.sent_at)
-            dict_entry = vars(chat)
-            del dict_entry['_state']
-            dict_entry.update({
-                'date': date_time[0],
-                'time': date_time[1]
-            })
-            ch_dict_lst.append(dict_entry)
+        # ch_dict_lst = []
+        # for chat in chat_history:
+        #     date_time = clean_dt(chat.sent_at)
+        #     dict_entry = vars(chat)
+        #     del dict_entry['_state']
+        #     dict_entry.update({
+        #         'date': date_time[0],
+        #         'time': date_time[1]
+        #     })
+        #     ch_dict_lst.append(dict_entry)
         # print(ch_dict_lst)     
         
         # ch = chat_history[0].sent_at
