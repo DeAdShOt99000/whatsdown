@@ -31,7 +31,7 @@
         position: relative;
         top: -6vh;
         left: 0.5vw;
-        height: 80vh;
+        height: 79vh;
         width: 99vw;
         overflow: auto;
     }
@@ -51,7 +51,7 @@
     .chat-text-container {
         /* background-color: aqua; */
         width: 100%;
-        height: 8.3vh;
+        height: 9vh;
     }
     .chat-text {
         padding: 5px;
@@ -130,7 +130,7 @@
         </form> -->
         {% csrf_token %}
     <input onkeydown="enterButton(event)" class="text-bar" type="text" name="text-message" id="text-message" placeholder="Enter message...">
-    <button id="send" onclick="sendMessage()">Send</button>
+    <button id="send" onclick="sendMessage();setTimeout('scrollToBottom()', 500);">Send</button>
     <button id="to-bottom-btn" onclick="scrollToBottom()">
         &darr;
     </button>
@@ -233,7 +233,7 @@
         var toBottomBtn = document.getElementById('to-bottom-btn')
 
         chatBox2.addEventListener('scroll', function(){
-            if (chatBox2.scrollHeight - chatBox2.scrollTop < chatBox2.clientHeight + 1){
+            if (chatBox2.scrollHeight - chatBox2.scrollTop < chatBox2.clientHeight+2){
                 toBottomBtn.style.display = 'none';
             }
             else {
