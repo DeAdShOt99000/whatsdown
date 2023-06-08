@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Base{% endblock title %}</title>
+    <style>
+        .profile-pic {
+            width: 1.3em;
+            height: 1.3em;
+            vertical-align: middle;
+            margin: 5px;
+            border-radius: 50%;
+        }
+        .profile-email {
+            font-size: 0.5em;
+            color: gray;
+        }
+    </style>
+    {% block style %}
+    {% endblock style %}
+</head>
+<body>
+{% block content %}    
+{% endblock content %}    
+</body>
+</html>

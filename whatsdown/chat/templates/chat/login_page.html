@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}Log in{% endblock title %}
+
+{% block style %}
+<style>
+    body {
+        text-align: center;
+    }
+</style>
+{% endblock style %}
+    
+{% block content %}
+<h1 id="whatsdown">WhatsDown Log in</h1>
+<form action="" method="post">
+    {% csrf_token %}
+    <input type="text" name="user_or_email" placeholder="Username or Email">
+    <br><br>
+    <input type="password" name="password" placeholder="Password">
+    <br><br>
+    <input type="submit" value="Log in">
+    <a href="{% url 'signup_view' %}">Sign up</a>
+</form>
+{% endblock content %}
+        

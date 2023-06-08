@@ -1,0 +1,259 @@
+{% extends 'base.html' %}
+{% block title %}{{ friend.first_name|title }}'s Chat{% endblock title %}
+
+{% block style %}
+<style>
+    body {
+        height: 100%;
+        margin: 0;
+    }
+    .profile-email {
+        position: relative;
+        left: 60px;
+        bottom: 30px;
+    }
+    #all-friends {
+        font-size: 0.5em;
+        margin: 0;
+        padding: 3px;
+        text-decoration: none;
+        background-color: lightgray;
+        border-radius: 5px;
+        color: black;
+        opacity: 0.6;
+    }
+    #all-friends:hover {
+        opacity: 1;
+    }
+    #chat-box {
+        background-color: lightgray;
+        border-radius: 15px;
+        position: relative;
+        top: -6vh;
+        left: 0.5vw;
+        height: 80vh;
+        width: 99vw;
+        overflow: auto;
+    }
+    .bottom {
+        position: fixed;
+        left: 50%;
+        bottom: 10px;
+        transform: translateX(-50%);
+        text-align: center;
+        width: 100%;
+    }
+    .text-bar {
+        width: 60%;
+        border-width: 3px;
+        border-radius: 5px;
+    }
+    .chat-text-container {
+        /* background-color: aqua; */
+        width: 100%;
+        height: 8.3vh;
+    }
+    .chat-text {
+        padding: 5px;
+        border-radius: 10px;
+        margin: 10px;
+        
+    }
+    .sender {
+        float: right;
+        background-color: white;
+    }
+    .receiver {
+        float: left;
+        background-color: gray;
+    }
+    .time {
+        font-size: 0.5em;
+        font-weight: bolder;
+    }
+    .sender .time{
+        float: right;
+    }
+    .receiver .time {
+        float: left;
+    }
+    .date-container {
+        text-align: center;
+        padding: 5px;
+    }
+    .date {
+        border: 2px solid gray;
+        background-color: lightgray;
+        color: gray;
+        border-radius: 10px;
+        font-weight: bold;
+        padding: 0 20px;
+    }
+    #to-bottom-btn {
+        display: none;
+        position: fixed;
+        bottom: 50px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 8px;
+        border-style: solid;
+        border-radius: 50%;
+        width: 47px;
+        font-size: x-large;
+        opacity: 0.5;
+    }
+    #to-bottom-btn:hover {
+        cursor: pointer;
+        opacity: 1;
+    }
+    </style>
+{% endblock style %}
+
+{% block content %}
+<div id="for-observer"></div>
+<h1 style="margin: 0 0 10px 0;">
+    <a href="{% url 'home' %}" id="all-friends">&#8592;All Friends</a><br>
+    <img class="profile-pic" src="{% url 'profile_pic' friend.id %}">
+    {{ friend.first_name|title }}<br>
+    <span class="profile-email">{{ friend.email }}</span>
+</h1>
+<div id="chat-box">
+    <!-- {% for chat in chat_history %}
+        <h2>{{ chat.text }} - {{ chat.sent_at }}</h2>
+        {% endfor %} -->
+    </div>
+    <div class="bottom">
+        <!-- <form action="" method="post">
+            {% csrf_token %}
+            <input class="text-bar" type="text" name="text-message" placeholder="Enter message...">
+            <input type="submit" value="Send">
+        </form> -->
+        {% csrf_token %}
+    <input onkeydown="enterButton(event)" class="text-bar" type="text" name="text-message" id="text-message" placeholder="Enter message...">
+    <button id="send" onclick="sendMessage()">Send</button>
+    <button id="to-bottom-btn" onclick="scrollToBottom()">
+        &darr;
+    </button>
+</div>
+{% load static %}
+
+<script src="{% static 'script/jquery.js' %}"></script>
+<script>
+    function scrollToBottom(){
+        var chatBoxScroll = document.getElementById('chat-box');
+        chatBoxScroll.scrollTop = chatBoxScroll.scrollHeight;
+    }
+    function enterButton(event){
+        if (event.key == 'Enter') {
+            event.preventDefault();
+            document.getElementById('send').click()
+            document.getElementById('text-message').value = ''
+        }
+    }
+    function sendMessage(){
+        updateMsg()
+        var textMessage = {
+            'text-message': document.getElementById('text-message').value
+        }
+        fetch('http://127.0.0.1:8000{{ request.path }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('input[name="csrfmiddlewaretoken"]').value
+            },
+            body: JSON.stringify(textMessage)
+        })
+        document.getElementById('text-message').value = ''
+    }
+    function updateMsg(){
+        $.getJSON("{% url 'chat-json' friend.id %}", function(data){
+            // console.log(data);
+            // console.log(data[0].text)
+            var chatBox = document.getElementById('chat-box')
+            // chatBox.innerHTML = ''
+            $('#chat-box').empty();
+            var dateList = []
+            for (i in data){
+                chat = data[i]
+                // console.log(chat.text);
+                // console.log('{{ friend.id }}')
+                // console.log(chat.sent_by_id)
+                var chatElementContainer = document.createElement('div')
+                chatElementContainer.setAttribute('class', 'chat-text-container')
+
+                var chatElement = document.createElement('span')
+                chatElement.innerText = chat.text
+
+                var chatTime = document.createElement('span')
+                chatTime.innerText = chat.time
+                chatTime.setAttribute('class', 'time')
+                
+                if (chat.sent_by_id == '{{ user.id }}'){
+                    chatElement.setAttribute('class', 'sender chat-text')
+                }
+                else {
+                    chatElement.setAttribute('class', 'receiver chat-text')
+                }
+                
+                if (!dateList.includes(chat.date)){
+                    var dateContainer = document.createElement('div')
+                    dateContainer.setAttribute('class', 'date-container')
+                    
+                    var dateElement = document.createElement('span')
+                    dateElement.setAttribute('class', 'date')
+                    
+                    dateElement.innerText = chat.date
+                    
+                    dateContainer.appendChild(dateElement)
+                    chatBox.appendChild(dateContainer)
+                    
+                    dateList.push(chat.date)
+                }
+                
+                var br = document.createElement('br')
+                chatElement.appendChild(br)
+                chatElement.appendChild(chatTime)
+                chatElementContainer.appendChild(chatElement)
+                chatBox.appendChild(chatElementContainer)
+            }
+            setTimeout('updateMsg()', 3000)
+        })
+        
+    }
+    
+    $(document).ready(function() {
+        var chatBoxScroll2 = document.getElementById('chat-box');
+        var test = document.getElementById('for-observer')
+        var observer = new MutationObserver(function(){
+            scrollToBottom();
+        })
+        observer.observe(test, {childList: true, subtree: true});
+        
+        var chatBox2 = document.getElementById('chat-box')
+        var toBottomBtn = document.getElementById('to-bottom-btn')
+
+        chatBox2.addEventListener('scroll', function(){
+            if (chatBox2.scrollHeight - chatBox2.scrollTop < chatBox2.clientHeight + 1){
+                toBottomBtn.style.display = 'none';
+            }
+            else {
+                toBottomBtn.style.display = 'block';
+            }
+        })
+
+
+        function toBottom(){
+            var test2 = document.createElement('div')
+            test.appendChild(test2)
+        }
+        window.onload = function(){
+            setTimeout(toBottom, 150);
+        }
+        $.ajaxSetup({ cache: false });
+        updateMsg()
+        // setTimeout('updateMsg()', 1000);
+    });
+</script>
+{% endblock content %}
+    
+    

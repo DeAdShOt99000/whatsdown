@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block title %}WhatsDown{% endblock title %}
+    
+{% block style %}
+<style>
+    #top {
+        display: flex;
+        justify-content: space-between;
+    }
+    .whatsdown-flex {
+        font-weight: bolder;
+        font-size: x-large;
+        margin: 10px 0;
+    }
+    .search-flex {
+        border-radius: 5px;
+        height: 2em;
+        width: 40vw;
+        margin: 10px 0;
+    }
+    .user-flex {
+        font-size: 2.2em;
+    }
+    .logout {
+        text-decoration: none;
+        font-size: 1.1em;
+        position: absolute;
+        top: 9%;
+        right: 5%;
+        display: none;
+        font-weight: bold;
+    }
+    .user-flex:hover {
+        cursor: pointer;
+    }
+    .user-flex:hover + .logout, .logout:hover, .plus-sign:hover + .add-friend {
+        display: inline;
+    }
+    .logout:hover {
+        text-decoration: underline;
+    }
+    .add-friend-btn {
+        position: fixed;
+        bottom: 5px;
+        right: 10px;
+        background-color: lightgray;
+        height: 52px;
+        border-radius: 30%;
+    }
+    .plus-sign {
+        position: absolute;
+        z-index: 10;
+        bottom: 10px;
+        right: 10px;
+        font-size: 3em;
+        font-weight: bolder;
+        text-decoration: none;
+        color: green;
+        background-color: lightgray;
+        border-radius: 30%;
+        padding: 0 10px;
+    }
+    .plus-sign:hover {
+        cursor: pointer;
+        background-color: gray;
+    }
+    .add-friend {
+        position: absolute;
+        font-size: 1.5em;
+        color: greenyellow;
+        width: 150px;
+        right: 20px;
+        bottom: 25px;
+        display: none;
+        text-shadow: green 1px 1px 0px;
+    }
+    #overlay {
+        position: absolute;
+        z-index: -1;
+        top: 0;
+        left: 0;
+        height: 99.9vh;
+        width: 99.9vw;
+        display: none;
+    }
+    #add-friend-box {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        text-align: center;
+        background-color: lightgray;
+        transform: translate(-50%, -50%);
+        width: 70%;
+        height: 30%;
+        border-radius: 20px;
+        font-weight: bold;
+        display: none;
+    }
+    .add-friend-email{
+        position: relative;
+        width: 70%;
+    }
+    .friend-chat {
+        text-decoration: none;
+    }
+    .friend-chat:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock style %}
+{% block content %}
+<div id="top">
+    <div class="whatsdown-flex">WhatsDown</div>
+    <form action="" method="get">
+        <input class="search-flex" type="search" name="search" placeholder="Search..." {% if search %}value="{{ search }}"{% endif %}>
+        <input type="submit" value="Search">
+    </form>
+    <div class="user-flex"><img class="profile-pic" src="{% url 'profile_pic' user.id %}">{{ user.first_name|title }}</div>
+    <a class="logout" href="{% url 'logout_view' %}">Log out</a>
+</div>
+<h2>Chats</h2>
+{% if all_friends %}
+{% for friend in all_friends %}
+<h3>
+    <img class="profile-pic" src="{% url 'profile_pic' friend.id %}" alt="">
+    <a class="friend-chat" href="{% url 'chat_view' friend.id %}">{{ friend.first_name|title }} {{ friend.last_name|title }} - <span class="profile-email">{{ friend.email }}</span></a>
+</h3>
+{% endfor %}
+{% else %}
+<h3>No friends</h3>
+{% endif %}
+<div id="overlay" onclick="toggleBox()"></div>
+<div id="add-friend-box">
+    <form action="" method="post">
+        {% csrf_token %}
+        <br><br><br><br>
+        <label for="email">Email:</label>
+        <input class="add-friend-email" type="email" name="email">
+        <br><br>
+        <input type="submit" value="Add">
+    </form>
+</div>
+<span class="plus-sign" href="" onclick="toggleBox()">+</span>
+<span class="add-friend">Add friend</span>
+
+<script>
+    var box = document.getElementById('add-friend-box')
+    var overlay = document.getElementById('overlay')
+    function toggleBox(){
+        if (box.style.display === 'none'){
+            box.style.display = 'block'
+            overlay.style.display = 'block'
+        }
+        else{
+            box.style.display = 'none'
+            overlay.style.display = 'none'
+        }
+    }
+</script>
+{% endblock content %}
+    

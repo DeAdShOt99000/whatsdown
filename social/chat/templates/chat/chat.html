@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsDown</title>
+</head>
+<style>
+    #container {
+        border: 2px solid black;
+        height: 97vh;
+    }
+    .chat {
+        display: inline-block;
+        position: relative;
+        border-radius: 3px;
+        padding: 2px 5px;
+        margin: 10px;
+    }
+    .sender {
+        background-color: lightsalmon;
+        float: right;
+    }
+    .receiver {
+        background-color: lightcoral;
+        /* float: left; */
+    }
+    .message-field {
+        position: absolute;
+        bottom: 15px;
+        left: 15px;
+        width: 70vw;
+    }
+    .send {
+        position: absolute;
+        width: 20vw;
+        right: 30px;
+        bottom: 15px;
+    }
+</style>
+<body>
+    <div id="container">
+        <h2>{{ friend.username }}</h2>
+        {% for chat in all_chat %}
+        <span class="chat {% if chat.receiver == friend %}receiver{% else %}sender{% endif %}">{{ chat.message }}</span>
+        <br>
+        {% endfor %}
+        <form action="" method="post">
+            {% csrf_token %}
+            <input class="message-field" type="text" name="message">
+            <input class="send" type="submit" value="Send">
+        </form>
+    </div>
+</body>
+</html>
